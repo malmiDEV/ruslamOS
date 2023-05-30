@@ -48,10 +48,12 @@ impl Writer {
      fn vga_cursor(&mut self, x: usize, y: usize) {
           let pos: usize = y * SCW + x;
 
-          outb(0x3D4, 14);
-          outb(0x3D5, (pos >> 8) as u8);
-          outb(0x3D4, 15);
-          outb(0x3D5, (pos & 0xFF) as u8);
+          unsafe {
+               outb(0x3D4, 14);
+               outb(0x3D5, (pos >> 8) as u8);
+               outb(0x3D4, 15);
+               outb(0x3D5, (pos & 0xFF) as u8);
+          }
      }
 
      pub fn clear_screen(&mut self) {
