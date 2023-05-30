@@ -59,7 +59,7 @@ _bootsector:
 
      ; int 13h params
      mov cl, 10
-     mov al, 80
+     mov al, 100
      mov dl, [boot_disk]
      call read_sector
      pop es
