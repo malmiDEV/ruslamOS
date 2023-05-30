@@ -1,0 +1,25 @@
+{
+     "llvm-target": "i386-unknown-none",
+     "cpu": "i386",
+     "arch": "x86",
+     "data-layout": "e-m:e-i32:32-f80:128-n8:16:32-S128-p:32:32",
+     "target-endian": "little",
+     "target-pointer-width": "32",
+     "target-c-int-width": "32",
+     "os": "none",
+     "executables": true,
+     "relocation-model": "static",
+     "linker": "ld",
+     "linker-flavor": "ld",
+     "disable-redzone": true,
+     "features": "+soft-float,+sse",
+
+     "pre-link-args": {
+          "ld": [
+               "-m", "elf_i386",
+               "-T", "kernel/kernel.ld",
+               "kernel/src/kstart.o",
+               "kernel/src/arch/i686/interrupt/isrs.o"
+          ]
+     }
+}

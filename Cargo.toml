@@ -1,0 +1,29 @@
+[package]
+name = "RuslamOs"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "ruslamos"
+path = "kernel/src/main.rs"
+
+[profile.dev]
+panic = "abort"
+opt-level = 3
+
+[profile.release]
+panic = "abort"
+lto = true
+
+[workspace]
+members = [
+    "kernel"
+]
+
+[dependencies.lazy_static]
+version = "1.0"
+features = ["spin_no_std"]
+
+[dependencies]
+spin = "0.9.8"
+bitflags = "2.2.1"
