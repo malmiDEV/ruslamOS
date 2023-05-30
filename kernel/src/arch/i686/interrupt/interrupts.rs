@@ -6,7 +6,7 @@ macro_rules! exceptions {
     ($(fn $name:ident() => $msg:expr,)*) => {
         $(
             pub fn $name(regs: &mut Registers) {
-                println!("\nCPU Exeption: {}", $msg);
+                println!("CPU Exeption: {}", $msg);
                 println!("
                     \rREGS:\n   EAX={:#X}  EBX={:#X}  ECX={:#X}  EDX={:#X}  ESI={:#X}  EDI={:#X}
                     \r   ESP={:#X}  EBP={:#X}  EIP={:#X}  EFLAGS={:#X}  CS={:#X}  DS={:#X} SS={:#X}", 

@@ -14,10 +14,24 @@ const ICW1_ICW4:     u8 = 0x01;
 const ICW1_INIT:     u8 = 0x10;
 const ICW1_READ:     u8 = 0x0B;
 
-pub struct Pic;
+// idea from redox os kernel
+pub static mut MASTER: Pic = Pic::new(PIC1);
+pub static mut SLAVE: Pic = Pic::new(PIC2);
+
+pub struct Pic {
+    mos: u16,
+    data: u16
+}
 
 impl Pic {
-    fn new() -> Self {
+    pub const fn new(port: u16) -> Self {
+        Self {
+            mos: port,
+            data: port + 1
+        }
+    }
+
+    pub unsafe fn remap(&self) {
         unsafe {
             let m1 = io::inb(PIC1_DATA as u16);
             io::wait();
@@ -45,24 +59,29 @@ impl Pic {
             io::outb(PIC2_DATA, m2);                       
             io::wait();
         }
-        
-        Self
+
     }
 
-    unsafe fn pic_set_mask(&self, irq_line: u8) {
-        io::outb(PIC1_DATA, irq_line & 0xFF);
-        io::wait();
-        // io::outb(PIC2_DATA, irq_line >> 8);
-        // io::wait();
+    // unsafe fn pic_set_mask(&self, irq_line: u8) {
+    //     io::outb(PIC1_DATA, irq_line & 0xFF);
+    //     io::wait();
+    //     io::outb(PIC2_DATA, irq_line >> 8);
+    //     io::wait();
+    // }
+    
+    pub unsafe fn mask_set(&mut self, irq: u8) {
+        let mut mask = unsafe { io::inb(self.data) };
+        mask |= 1 << irq;
+        io::outb(self.data, mask)
     }
 
-    unsafe fn get_mask(&self) -> u16 {
-        let master = io::inb(PIC1_DATA) as u16;
-        let slave = io::inb(PIC2_DATA) as u16;
-        master << 8 | slave
+    pub unsafe fn mask_clear(&mut self, irq: u8) {
+        let mut mask = unsafe { io::inb(self.data) };
+        mask &= !(1 << irq);
+        io::outb(self.data, mask)
     }
 
-    fn eoi(&self, irq: u8) {
+    unsafe fn eoi(&self, irq: u8) {
         if irq >= 8 {
             unsafe { io::outb(PIC2_DATA, PIC_EOI) }
         } 
@@ -76,32 +95,3 @@ impl Pic {
         io::wait();
     }
 }
-
-
-// pub fn irq_set_mask(irq_line: &mut u8) {
-//     let mut port: u16 = 0;
-
-//     if *irq_line < 8 {
-//         port = PIC1_DATA;
-//     } else {
-//         port = PIC2_DATA;
-//         *irq_line -= 8;
-//     }
-
-//     let value = io::inb(port) | (1 << *irq_line);
-//     io::outb(port, value);
-// }
-
-// pub fn irq_clear_mask(irq_line: &mut u8) {
-//     let mut port: u16 = 0;
-
-//     if *irq_line < 8 {
-//         port = PIC1_DATA;
-//     } else {
-//         port = PIC2_DATA;
-//         *irq_line -= 8;
-//     }
-
-//     let value = io::inb(port) & !(1 << *irq_line);
-//     io::outb(port, value);
-// }
