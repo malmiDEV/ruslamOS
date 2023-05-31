@@ -1,6 +1,7 @@
 use spin::Mutex;
 
 use super::idt::{Registers, Handlers, HANDLERS};
+use crate::arch::pic;
 
 macro_rules! exceptions {
     ($(fn $name:ident() => $msg:expr,)*) => {
@@ -45,13 +46,46 @@ pub fn breakpoint(regs: &mut Registers) {
 
 // ... pagefaule and more 
 
+unsafe fn irq_mask(irq: u8) {
+    if irq >= 8 {
+        pic::SLAVE.mask_set(irq - 8);
+    } else {
+        pic::MASTER.mask_set(irq);
+    }
+}
+
+unsafe fn irq_clear(irq: u8) {
+    if irq >= 8 {
+        pic::SLAVE.mask_clear(irq - 8);
+    } else {
+        pic::MASTER.mask_clear(irq);
+    }
+}
+
+unsafe fn eoi(irq: u8) {
+    if irq >= 8 {
+        pic::MASTER.send_eoi();
+        pic::SLAVE.send_eoi();
+    } else {
+        pic::MASTER.send_eoi();
+    }
+}
+
+// TODO: finish interrupt
 #[no_mangle]
 pub unsafe extern "C" fn _IsrHandler(regs: &mut Registers) {
-    match &HANDLERS.lock()[regs.interrupt as usize] {
+    let handlers = HANDLERS.lock();
+    match &handlers[regs.interrupt as usize] {
+    //     Handlers::Irq(handler) => {
+    //
+    //     },
         Handlers::Error(handler) => {
             handler(regs);
-        }
+        },
         Handlers::None => println!("unhandled interrupt: {:#X}", regs.interrupt)
     }
-    panic!()
+}
+
+unsafe fn regs_handle() {
+
 }

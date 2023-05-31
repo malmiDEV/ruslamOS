@@ -18,6 +18,41 @@ const ICW1_READ:     u8 = 0x0B;
 pub static mut MASTER: Pic = Pic::new(PIC1);
 pub static mut SLAVE: Pic = Pic::new(PIC2);
 
+pub unsafe fn remap() {
+    let m1 = io::inb(PIC1_DATA as u16);
+    io::wait();
+    let m2 = io::inb(PIC2_DATA as u16); 
+    io::wait();
+
+    io::outb(PIC1, (ICW1_INIT | ICW1_ICW4) as u8);  
+    io::wait();
+    io::outb(PIC2, (ICW1_INIT | ICW1_ICW4) as u8);  
+    io::wait();
+    io::outb(PIC1_DATA, PIC1_OFFSET as u8);         
+    io::wait();
+    io::outb(PIC2_DATA, PIC2_OFFSET as u8);        
+    io::wait();
+    io::outb(PIC1_DATA, 0x04);  
+    io::wait(); 
+    io::outb(PIC2_DATA, 0x02);                      
+    io::wait();
+    io::outb(PIC1_DATA, PIC_MODE_8086 as u8);       
+    io::wait();
+    io::outb(PIC1_DATA, PIC_MODE_8086 as u8);       
+    io::wait();
+    io::outb(PIC1_DATA, m1);                        
+    io::wait();
+    io::outb(PIC2_DATA, m2);                       
+    io::wait();
+}
+
+pub unsafe fn disable() {
+    io::outb(PIC1_DATA, 0xFF);
+    io::wait();
+    io::outb(PIC2_DATA, 0xFF);
+    io::wait(); 
+}
+
 pub struct Pic {
     mos: u16,
     data: u16
@@ -30,44 +65,6 @@ impl Pic {
             data: port + 1
         }
     }
-
-    pub unsafe fn remap(&self) {
-        unsafe {
-            let m1 = io::inb(PIC1_DATA as u16);
-            io::wait();
-            let m2 = io::inb(PIC2_DATA as u16); 
-            io::wait();
-
-            io::outb(PIC1, (ICW1_INIT | ICW1_ICW4) as u8);  
-            io::wait();
-            io::outb(PIC2, (ICW1_INIT | ICW1_ICW4) as u8);  
-            io::wait();
-            io::outb(PIC1_DATA, PIC1_OFFSET as u8);         
-            io::wait();
-            io::outb(PIC2_DATA, PIC2_OFFSET as u8);        
-            io::wait();
-            io::outb(PIC1_DATA, 0x04);  
-            io::wait(); 
-            io::outb(PIC2_DATA, 0x02);                      
-            io::wait();
-            io::outb(PIC1_DATA, PIC_MODE_8086 as u8);       
-            io::wait();
-            io::outb(PIC1_DATA, PIC_MODE_8086 as u8);       
-            io::wait();
-            io::outb(PIC1_DATA, m1);                        
-            io::wait();
-            io::outb(PIC2_DATA, m2);                       
-            io::wait();
-        }
-
-    }
-
-    // unsafe fn pic_set_mask(&self, irq_line: u8) {
-    //     io::outb(PIC1_DATA, irq_line & 0xFF);
-    //     io::wait();
-    //     io::outb(PIC2_DATA, irq_line >> 8);
-    //     io::wait();
-    // }
     
     pub unsafe fn mask_set(&mut self, irq: u8) {
         let mut mask = unsafe { io::inb(self.data) };
@@ -81,17 +78,7 @@ impl Pic {
         io::outb(self.data, mask)
     }
 
-    unsafe fn eoi(&self, irq: u8) {
-        if irq >= 8 {
-            unsafe { io::outb(PIC2_DATA, PIC_EOI) }
-        } 
-        unsafe { io::outb(PIC1_DATA, PIC_EOI) }
-    }
-
-    unsafe fn disable(&self) {
-        io::outb(PIC1_DATA, 0xFF);
-        io::wait();
-        io::outb(PIC2_DATA, 0xFF);
-        io::wait();
+    pub unsafe fn send_eoi(&self) {
+        io::outb(self.data, PIC_EOI);
     }
 }

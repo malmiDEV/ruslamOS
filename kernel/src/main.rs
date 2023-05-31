@@ -18,6 +18,7 @@ pub extern "C" fn _kmain() -> ! {
           use core::arch::asm;
           asm!("int $0x1");
      }
+     println!("Kernel Loaded: {:#X}", 0xDEADBEEF as u32);
      loop {}
 }
 

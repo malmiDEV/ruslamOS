@@ -96,6 +96,7 @@ pub struct Registers {
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 pub enum Handlers {
+    Irq(fn(&mut Registers)),
     Error(fn(&mut Registers)),
     None
 }
