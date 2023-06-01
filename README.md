@@ -1,5 +1,5 @@
 # ruslamOS
-![logo](image/screenshot.png)
+![logo](image/exception.png)
 
 my hobby 32bit os written in rust
 

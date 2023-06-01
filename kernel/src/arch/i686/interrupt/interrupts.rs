@@ -77,7 +77,7 @@ pub unsafe extern "C" fn _IsrHandler(regs: &mut Registers) {
     let handlers = HANDLERS.lock();
     match &handlers[regs.interrupt as usize] {
         Handlers::Irq(handler) => {
-    
+            
         },
         Handlers::Error(handler) => {
             handler(regs);
