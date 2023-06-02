@@ -16,21 +16,23 @@ fn test(regs: &mut crate::arch::interrupt::Registers) {
 }
 
 #[no_mangle]
-pub extern "C" fn _kmain() -> ! {
-     unsafe {
-          arch::cpu_interrupt_set();
-          arch::interrupt::enable_int();
-     }
-     println!("Kernel Loaded");
+pub unsafe extern "C" fn _kmain() -> ! {
+     // init kernel stuff 
+     arch::cpu_interrupt_set();
+     arch::interrupt::clear_interrupt();
+     arch::interrupt::enable_interrupt();
 
      arch::i686::interrupt::interrupts::regs_handle(0, test);
+
+     println!("Kernel Loaded");
+
      loop {}
 }
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
      unsafe {
-          arch::interrupt::disable_int();
+          arch::interrupt::clear_interrupt();
           arch::interrupt::halt();
      }
      loop {}

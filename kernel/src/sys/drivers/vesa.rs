@@ -5,6 +5,8 @@ use spin::Mutex;
 use lazy_static::lazy_static;
 
 use crate::sys::shell::*;
+use crate::utils::font;
+ 
 
 #[derive(Copy, Clone)]
 #[repr(C, packed)]
@@ -30,7 +32,7 @@ pub struct RSVbeInfoMode {
 	bank_size: u8,		 
 	image_pages: u8,
 	reserved0: u8,
- 
+	
 	red_mask: u8,
 	red_position: u8,
 	green_mask: u8,
@@ -40,7 +42,7 @@ pub struct RSVbeInfoMode {
 	reserved_mask: u8,
 	reserved_position: u8,
 	direct_color_attributes: u8,
- 
+	
 	framebuffer: u32,		
 	off_screen_mem_off: u32,
 	off_screen_mem_size: u16,	
@@ -49,15 +51,15 @@ pub struct RSVbeInfoMode {
 
 
 const VBE_MODEINFO_ADDR: usize = 0xC000;
-const TEST_FONTADDR: usize = 0xD000;
 
 const CHAR_WIDTH: usize = 8;
-const CHAR_HEIGHT: usize = 16;
+const CHAR_HEIGHT: usize = 8;
+type Font = [[u8; 8]; 128]; 
 
 // set in kstart.asm
 #[no_mangle]
 pub unsafe extern "C" fn vesa_console_init() {
-	let test_font = TEST_FONTADDR as *const u8;
+	// let test_font = TEST_FONTADDR as *const u8;
 
 	let vbe_mode_info = &*(VBE_MODEINFO_ADDR as *const RSVbeInfoMode);
 
@@ -65,7 +67,7 @@ pub unsafe extern "C" fn vesa_console_init() {
 	
 	let mut vesa_gfx = VesaGraphics {
 		vram: (*(VBE_MODEINFO_ADDR as *const RSVbeInfoMode)).framebuffer as *mut u8,
-		font: test_font,
+		font: font::VGA_PC_FONT,
         width: vbe_mode_info.x_res as usize,
 		height: vbe_mode_info.y_res as usize,
 		pitch: vbe_mode_info.pitch as usize,
@@ -75,6 +77,7 @@ pub unsafe extern "C" fn vesa_console_init() {
 	};
 	
 	vesa_gfx.blank();
+
 	shell_set(Shell::VesaGraphics(vesa_gfx));
 }
 
@@ -91,7 +94,7 @@ impl Point {
 // 2d graphics && font renderer
 pub struct VesaGraphics {
 	vram: *mut u8,
-	font: *const u8,
+	font: &'static Font,
 	width: usize,
 	height: usize,
 	pitch: usize,
@@ -105,7 +108,7 @@ const CHARCOL: u32 = 0xFFFBF1C7;
 
 impl VesaGraphics {
 	pub fn move_cursor(&mut self, x_pos: usize, y_pos: usize) {
-		
+
 	}
 
 	pub fn write_char(&mut self, c: u8) {
@@ -118,11 +121,10 @@ impl VesaGraphics {
 				self.col = 0;
 			}
 			_ => {
-				for y in 0..16 {
-					let glyph = unsafe { *self.font.offset((c - 1) as isize * 16 + y) };
-		
+				let glyph = self.font[c as usize];
+				for y in 0..8 {
 					for x in 0..8 {	
-						if glyph & (0x80 >> x) != 0 {
+						if glyph[y] & (1 << x) != 0 {
 							self.draw_pixel(self.col * CHAR_WIDTH + x, self.row * CHAR_HEIGHT + y as usize, CHARCOL);
 						}
 					}
@@ -130,7 +132,15 @@ impl VesaGraphics {
 				self.col += 1;
 			}
 		}
-		self.move_cursor(self.col, self.row);
+
+		if self.col >= self.width / 8 {
+			self.col = 0;
+			self.row += 1;
+		}
+
+		// if self.row >= self.height {
+		// 	todo!();
+		// }
 	}
 
 	pub fn blank(&mut self) {

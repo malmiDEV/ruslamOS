@@ -14,11 +14,11 @@ pub unsafe fn halt() {
 }
 
 #[inline(always)]
-pub unsafe fn disable_int() {
+pub unsafe fn clear_interrupt() {
     asm!("cli", options(nomem, nostack))
 }
 
 #[inline(always)]
-pub unsafe fn enable_int() {
+pub unsafe fn enable_interrupt() {
     asm!("sti", options(nomem, nostack))
 }

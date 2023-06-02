@@ -106,7 +106,7 @@ pub static HANDLERS: Mutex<[Handlers; 256]> =
 
 pub fn init() {
     use super::interrupts;
-    
+
     unsafe {
         crate::arch::interrupt::idt_gates();
     }

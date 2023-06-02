@@ -40,15 +40,6 @@ _bootsector:
      mov dl, [boot_disk]
      call read_sector
 
-     ; load testfont
-     mov bx, 0xD000
-
-     ; int 13h params
-     mov cl, 5
-     mov al, 4
-     mov dl, [boot_disk]
-     call read_sector
-
      ; load kernel
      push es
      mov ax, 0x1000
@@ -58,8 +49,8 @@ _bootsector:
      mov bx, 0x0000
 
      ; int 13h params
-     mov cl, 10
-     mov al, 100
+     mov cl, 5
+     mov al, 110
      mov dl, [boot_disk]
      call read_sector
      pop es
