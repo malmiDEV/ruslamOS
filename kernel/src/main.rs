@@ -9,16 +9,21 @@ pub mod utils;
 
 use core::panic::PanicInfo;
 use utils::io::*;
+// use core::arch::asm;
  
+fn test(regs: &mut crate::arch::interrupt::Registers) {
+     print!(".");
+}
+
 #[no_mangle]
 pub extern "C" fn _kmain() -> ! {
      unsafe {
           arch::cpu_interrupt_set();
-          
-          use core::arch::asm;
-          asm!("int $0x1");
+          arch::interrupt::enable_int();
      }
-     println!("Kernel Loaded: {:#X}", 0xDEADBEEF as u32);
+     println!("Kernel Loaded");
+
+     arch::i686::interrupt::interrupts::regs_handle(0, test);
      loop {}
 }
 

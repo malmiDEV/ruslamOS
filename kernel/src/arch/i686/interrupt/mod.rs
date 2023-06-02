@@ -1,6 +1,6 @@
-mod idt;
-mod interrupts;
-mod isrs_func;
+pub mod idt;
+pub mod interrupts;
+pub mod isrs_func;
 
 pub use idt::*;
 pub use interrupts::*;

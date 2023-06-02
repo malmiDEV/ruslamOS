@@ -79,6 +79,6 @@ impl Pic {
     }
 
     pub unsafe fn send_eoi(&self) {
-        io::outb(self.data, PIC_EOI);
+        io::outb(self.mos, PIC_EOI);
     }
 }

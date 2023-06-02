@@ -46,6 +46,8 @@ pub fn breakpoint(regs: &mut Registers) {
 
 // ... pagefaule and more 
 
+const IRQ_START: u8 = 0x20;
+
 unsafe fn irq_mask(irq: u8) {
     if irq >= 8 {
         pic::SLAVE.mask_set(irq - 8);
@@ -73,19 +75,23 @@ unsafe fn eoi(irq: u8) {
 
 // TODO: finish interrupt
 #[no_mangle]
-pub unsafe extern "C" fn _IsrHandler(regs: &mut Registers) {
-    let handlers = HANDLERS.lock();
+pub unsafe extern "C" fn general_interrupt_handler(regs: &mut Registers) {
+    let mut handlers = HANDLERS.lock();
     match &handlers[regs.interrupt as usize] {
         Handlers::Irq(handler) => {
-            
+            handler(regs)
         },
         Handlers::Error(handler) => {
             handler(regs);
         },
         Handlers::None => println!("unhandled interrupt: {:#X}", regs.interrupt)
     }
+    unsafe { eoi(regs.interrupt as u8) };
 }
 
-unsafe fn regs_handle() {
-
+pub fn regs_handle(int: u8, handler: fn(&mut Registers)) {
+    unsafe { pic::remap() };
+    let mut handlers = HANDLERS.lock();
+    handlers[(int + IRQ_START) as usize] = Handlers::Irq(handler);
+    unsafe { irq_clear(int + IRQ_START) };
 }

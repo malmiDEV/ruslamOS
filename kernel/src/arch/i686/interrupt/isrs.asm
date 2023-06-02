@@ -1,5 +1,5 @@
 [bits 32]
-    extern _IsrHandler
+    extern general_interrupt_handler
 
     %macro ISR_NOERRORCODE 1
 
@@ -38,7 +38,7 @@ isr_common:
 
     ; pass stack pointer to Rust code
     push esp
-    call _IsrHandler
+    call general_interrupt_handler
     add esp, 4
 
     ; restore previous segment
