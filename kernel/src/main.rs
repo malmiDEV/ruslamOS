@@ -20,13 +20,11 @@ pub unsafe extern "C" fn _kmain() -> ! {
      // init kernel stuff 
      arch::cpu_interrupt_set();
      arch::interrupt::clear_interrupt();
-     // arch::interrupt::enable_interrupt();
-
-     // arch::i686::interrupt::interrupts::regs_handle(0, test);
-
+     arch::interrupt::enable_interrupt();
+     
      println!("RuslamOS\n\n");
-     asm!("int 1");
-
+     arch::i686::interrupt::interrupts::regs_handle(0, test);
+     
      loop {}
 }
 

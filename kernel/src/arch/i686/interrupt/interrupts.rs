@@ -90,7 +90,7 @@ pub unsafe extern "C" fn general_interrupt_handler(regs: &mut Registers) {
 }
 
 pub unsafe fn regs_handle(int: u8, handler: fn(&mut Registers)) {
-    // pic::remap();
+    pic::remap();
     let mut handlers = HANDLERS.lock();
     // irq_mask(int + IRQ_START);
     handlers[(int + IRQ_START) as usize] = Handlers::Irq(handler);
