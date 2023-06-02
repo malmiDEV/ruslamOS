@@ -38,14 +38,10 @@ $(BIN)/bootsector.bin: $(BOOTLOADER)/bootsector.asm
 $(BIN)/stage2.bin: $(BOOTLOADER)/stage2.asm
 	$(AS) $< -f bin -o $@
 
-.PHONY: $(BIN)/font.bin
-$(BIN)/font.bin: $(BOOTLOADER)/font.asm
-	$(AS) $< -f bin -o $@
-
 $(KERNEL_ELF): $(KERNEL)/kstart.o $(KERNEL_AOBJS)
 	cargo xbuild --target=kernel/i686-kernel.json --release
 
-os.bin: $(BIN)/bootsector.bin $(BIN)/stage2.bin $(BIN)/font.bin $(KERNEL_ELF)
+os.bin: $(BIN)/bootsector.bin $(BIN)/stage2.bin $(KERNEL_ELF)
 	cat $^ > $(BIN)/temp.bin
 	dd if=/dev/zero of=$@ bs=512 count=2880
 	dd if=$(BIN)/temp.bin of=$@ conv=notrunc

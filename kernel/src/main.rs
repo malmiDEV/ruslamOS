@@ -9,7 +9,7 @@ pub mod utils;
 
 use core::panic::PanicInfo;
 use utils::io::*;
-// use core::arch::asm;
+use core::arch::asm;
  
 fn test(regs: &mut crate::arch::interrupt::Registers) {
      print!(".");
@@ -20,11 +20,12 @@ pub unsafe extern "C" fn _kmain() -> ! {
      // init kernel stuff 
      arch::cpu_interrupt_set();
      arch::interrupt::clear_interrupt();
-     arch::interrupt::enable_interrupt();
+     // arch::interrupt::enable_interrupt();
 
-     arch::i686::interrupt::interrupts::regs_handle(0, test);
+     // arch::i686::interrupt::interrupts::regs_handle(0, test);
 
-     println!("Kernel Loaded");
+     println!("RuslamOS\n\n");
+     asm!("int 1");
 
      loop {}
 }
