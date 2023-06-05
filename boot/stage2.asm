@@ -1,12 +1,21 @@
 [bits 16]  
     org 0x7E00
     
+    ; clear direction
     cld 
 
+    xor ax, ax
+    mov ds, ax 
+    mov es, ax 
+    mov fs, ax 
+    mov gs, ax 
+    mov ss, ax 
+
+    ; set stack pointer
     cli
+    mov ax, 0xFFF0
+    mov sp, ax
     sti
-    
-    call enable_a20
 
     ; set vesa mode
     mov ax, 0x4F00
@@ -65,7 +74,10 @@
 	cmp ax, 0x4F
 	jne .error
     
-    ; to 32bit mode
+    ; enable a20 gate
+    call enable_a20
+
+    ; switch cpu to 32bit protected mode
 	jmp pm
 
 .next_mode:
@@ -138,7 +150,6 @@ a20wait:
     test al, 2
     jnz a20wait
     ret
-
 a20wait2:
     in al, 0x64
     test al, 1
@@ -172,6 +183,11 @@ pm:
     mov edi, 0xC000
     mov ecx, 64
     rep movsd
+
+    mov edi, [mode_info_block.framebuffer]
+    mov eax, 0x000000FF
+    mov ecx, 1920*1080
+    rep stosd
 
     ; jump to kernel
     jmp 0x8:0x10000

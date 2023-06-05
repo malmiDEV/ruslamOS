@@ -73,7 +73,6 @@ unsafe fn eoi(irq: u8) {
     }
 }
 
-// TODO: finish interrupt
 #[no_mangle]
 pub unsafe extern "C" fn general_interrupt_handler(regs: &mut Registers) {
     let mut handlers = HANDLERS.lock();
@@ -86,13 +85,12 @@ pub unsafe extern "C" fn general_interrupt_handler(regs: &mut Registers) {
         },
         Handlers::None => println!("unhandled interrupt: {:#X}", regs.interrupt)
     }
-    eoi(regs.interrupt as u8);
+    eoi((regs.interrupt + 0x20) as u8);
 }
 
 pub unsafe fn regs_handle(int: u8, handler: fn(&mut Registers)) {
-    pic::remap();
     let mut handlers = HANDLERS.lock();
-    // irq_mask(int + IRQ_START);
+    irq_mask(int + IRQ_START);
     handlers[(int + IRQ_START) as usize] = Handlers::Irq(handler);
-    // irq_clear(int + IRQ_START);
+    irq_clear(int + IRQ_START);
 }

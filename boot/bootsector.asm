@@ -45,7 +45,7 @@ _bootsector:
      mov ax, 0x1000
      mov es, ax
      
-     ; es:bx = 0x5000:0x0000 (0x5000 << 4 + 0x0000) = 0x50000
+     ; es:bx = 0x1000:0x0000 (0x1000 << 4 + 0x0000) = 0x10000
      mov bx, 0x0000
 
      ; int 13h params
@@ -55,8 +55,8 @@ _bootsector:
      call read_sector
      pop es
      
-     ; load bootloader
-     jmp load_bootloader
+     ; load stage2 bootloader
+     jmp 0x0000:0x7E00
 
 ; read sector into memory
 read_sector:
@@ -94,23 +94,9 @@ puts:
      pop bx
      pop si
      ret
-
-load_bootloader:
-     mov ax, 0
-     mov ds, ax 
-     mov es, ax 
-     mov fs, ax 
-     mov gs, ax 
-     mov ss, ax 
      
-     mov ax, 0xFFF0
-     mov sp, ax
 
-     ; jump to stage2 bootloader
-     jmp 0x0000:0x7E00
-
-.loop:
-     jmp .loop
+jmp $
 
 msg_load: 
      db "Loading...", 0xA, 0xD, 0

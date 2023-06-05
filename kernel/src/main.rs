@@ -8,25 +8,42 @@ pub mod arch;
 pub mod utils;
 
 use core::panic::PanicInfo;
-use utils::io::*;
 use core::arch::asm;
- 
+
+use utils::io::*;
+use arch::i686::interrupt; 
+
+
 fn test(regs: &mut crate::arch::interrupt::Registers) {
      print!(".");
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn _kmain() -> ! {
+pub extern "C" fn _kmain() -> ! {
      // init kernel stuff 
-     arch::cpu_interrupt_set();
-     arch::interrupt::clear_interrupt();
-     arch::interrupt::enable_interrupt();
+     unsafe {
+          arch::cpu_interrupt_set();
+      
+          use crate::arch::pic;
+          pic::remap();
+          
+          interrupt::enable_interrupt();
+
+     }
      
      println!("RuslamOS\n\n");
-     arch::i686::interrupt::interrupts::regs_handle(0, test);
      
-     loop {}
+     unsafe {
+          interrupt::interrupts::regs_handle(0, test);
+     }
+
+     loop {
+          unsafe {
+               interrupt::halt();
+          }
+     }   
 }
+
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {

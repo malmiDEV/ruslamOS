@@ -108,7 +108,11 @@ const CHARCOL: u32 = 0xFFFBF1C7;
 
 impl VesaGraphics {
 	pub fn move_cursor(&mut self, x_pos: usize, y_pos: usize) {
+		// TODO
+	}
 
+	pub fn scroll(&mut self, line: usize) {
+		// TODO
 	}
 
 	pub fn write_char(&mut self, c: u8) {
@@ -138,9 +142,9 @@ impl VesaGraphics {
 			self.row += 1;
 		}
 
-		// if self.row >= self.height {
-		// 	todo!();
-		// }
+		if self.row >= self.height / 8 {
+			self.scroll(1);
+		}
 	}
 
 	pub fn blank(&mut self) {

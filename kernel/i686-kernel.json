@@ -18,8 +18,8 @@
           "ld": [
                "-m", "elf_i386",
                "-T", "kernel/kernel.ld",
-               "kernel/src/kstart.o",
-               "kernel/src/arch/i686/interrupt/isrs.o"
+               "kernel/src/kstart.elf",
+               "kernel/src/arch/i686/interrupt/isrs.elf"
           ]
      }
 }
