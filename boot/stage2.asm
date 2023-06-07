@@ -1,7 +1,6 @@
 [bits 16]  
     org 0x7E00
     
-    ; clear direction
     cld 
 
     xor ax, ax
@@ -165,9 +164,10 @@ pm:
     mov cr0, eax
     jmp 0x8:.after
 
+
 [bits 32]
 .after:
-    ; set 32bit pm segment
+    ; set 32bit segment
     mov ax, 0x10
     mov ds, ax 
     mov es, ax
@@ -179,20 +179,25 @@ pm:
     mov esp, 0x90000
     mov ebp, esp
 
+    ; store vbe mode info block
     mov esi, mode_info_block
     mov edi, 0xC000
     mov ecx, 64
     rep movsd
-
+    
+    ;; Debug
     mov edi, [mode_info_block.framebuffer]
     mov eax, 0x000000FF
     mov ecx, 1920*1080
     rep stosd
 
+    ;; TODO: Load kernel with ATA PIO port
     ; jump to kernel
-    jmp 0x8:0x10000
+    ; jmp 0x8:0x10000   
 
     jmp $
+
+%include "boot/ata/ata.asm"
 
 GDT_START:
 GDT_NULL:   
@@ -227,7 +232,7 @@ mode: dw 0
 error_msg: db 0x0A,0x0D,"CANNOT FIND VIDEO(VBE) MODE :<",0
 
     ; end stage2 bootloader
-    times 512-($-$$) db 0
+    times 1024-($-$$) db 0
 
 vbe_info_block:
     .vbe_signature: db 'VESA'
@@ -281,4 +286,4 @@ mode_info_block:
 	.off_screen_mem_size: dw 0	
 	.reserved1: times 206 db 0
 
-    times 1536-($-$$) db 0
+    times 2048-($-$$) db 0

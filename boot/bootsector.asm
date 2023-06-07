@@ -4,6 +4,8 @@ use16
      jmp 0000h:_bootsector
 
 _bootsector:
+     cld
+
      ; store boot drive
      mov byte [boot_disk], dl
      
@@ -15,9 +17,6 @@ _bootsector:
      mov gs, ax
      mov ss, ax
 
-     ; clear direction
-     cld
-
      ; set stack pointer
      cli
      mov sp, 0x7C00
@@ -28,9 +27,6 @@ _bootsector:
      mov ax, 0x0003
      int 10h
 
-     mov si, msg_load
-     call puts
-
      ; load stage2 bootloader
      mov bx, 0x7E00
 
@@ -40,22 +36,22 @@ _bootsector:
      mov dl, [boot_disk]
      call read_sector
 
-     ; load kernel
-     push es
-     mov ax, 0x1000
-     mov es, ax
+     ; push es
+     ; mov ax, 0x1000
+     ; mov es, ax
      
-     ; es:bx = 0x1000:0x0000 (0x1000 << 4 + 0x0000) = 0x10000
-     mov bx, 0x0000
+     ; mov bx, 0x0000
 
-     ; int 13h params
-     mov cl, 5
-     mov al, 110
-     mov dl, [boot_disk]
-     call read_sector
-     pop es
+     ; ; int 13h params
+     ; mov cl, 6
+     ; mov al, 110
+     ; mov dl, [boot_disk]
+     ; call read_sector
+     ; pop es
      
      ; load stage2 bootloader
+     mov dl, [boot_disk]
+     mov [0x1000], dl
      jmp 0x0000:0x7E00
 
 ; read sector into memory
