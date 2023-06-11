@@ -41,9 +41,8 @@ disk_load:
 
      mov ah, 0x02        ; read sector and put into memory
      mov al, dh          ; sector count
-     mov dh, 0x02        ; read first available sector 0x02
      mov ch, 0           ; low 8 bit of cylinder
-     mov cl, 0x2
+     mov cl, 0x02        ; read first available sector 0x02
      mov dh, 0           ; head number
      
      stc                 ; set carry
