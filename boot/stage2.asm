@@ -191,7 +191,7 @@ pm:
 
 ;; Load Kernel use ATA PIO PORTS (should change)
     ; zero out ax
-    xor ax, ax
+    xor eax, eax
 
     ; destination
     mov edi, 0x100000
