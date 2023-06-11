@@ -30,7 +30,7 @@ Boot:
      mov dl, [drive]     ; boot drive type
      call disk_load
 
-     ; load stage2 bootloader
+     ; switch to stage2 
      mov dl, [drive]
      mov [0x2000], dl
      jmp 0x0000:0x7E00
