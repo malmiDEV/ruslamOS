@@ -190,7 +190,7 @@ pm:
 
 
 ;; Load Kernel use ATA PIO PORTS (should change)
-    ; zero out ax
+    ; zero out eax
     xor eax, eax
 
     ; destination
@@ -200,7 +200,7 @@ pm:
 
     ;; CHS read
     mov edx, 0x1F6           
-    mov al, [0x1000]              
+    mov al, [0x2000]              
     and al, 0b00001111        
     or al, 0b10100000        
     out dx, al
