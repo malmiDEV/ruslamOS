@@ -18,7 +18,7 @@
           "ld": [
                "-m", "elf_i386",
                "-T", "kernel/kernel.ld",
-               "kernel/src/kstart.elf",
+               "kernel/src/loader.elf",
                "kernel/src/arch/i686/interrupt/isrs.elf"
           ]
      }

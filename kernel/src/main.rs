@@ -13,7 +13,6 @@ use core::arch::asm;
 use utils::io::*;
 use arch::i686::interrupt; 
 
-
 fn test(regs: &mut crate::arch::interrupt::Registers) {
      print!(".");
 }
@@ -23,12 +22,14 @@ pub extern "C" fn _kmain() -> ! {
      // init kernel stuff 
      unsafe {
           arch::cpu_interrupt_set();
-      
+          
           use crate::arch::pic;
           pic::remap();
           
           interrupt::enable_interrupt();
-
+          
+          use crate::sys::drivers;
+          drivers::vesa::vesa_console_init();     
      }
      
      println!("RuslamOS\n\n");

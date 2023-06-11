@@ -1,13 +1,14 @@
 use16
      org 0x7C00
 
-     jmp 0000h:_bootsector
+     jmp 0000h:Boot
 
-_bootsector:
+Boot:
+     ; clear direction
      cld
 
      ; store boot drive
-     mov byte [boot_disk], dl
+     mov byte [drive], dl
      
      ; set bootsector segment
      xor ax, ax
@@ -23,54 +24,52 @@ _bootsector:
      mov bp, sp
      sti
 
-     ; claer screen (80*25) VGA text
-     mov ax, 0x0003
-     int 10h
-
-     ; load stage2 bootloader
+     ;; load stage2   
      mov bx, 0x7E00
+     mov dh, 0x02        ; read 2 sector 
+     mov dl, [drive]     ; boot drive type
+     call disk_load
 
-     ; int 13h params
-     mov cl, 2
-     mov al, 2
-     mov dl, [boot_disk]
-     call read_sector
-
-     ; push es
-     ; mov ax, 0x1000
-     ; mov es, ax
-     
-     ; mov bx, 0x0000
-
-     ; ; int 13h params
-     ; mov cl, 6
-     ; mov al, 110
-     ; mov dl, [boot_disk]
-     ; call read_sector
-     ; pop es
-     
      ; load stage2 bootloader
-     mov dl, [boot_disk]
-     mov [0x1000], dl
+     mov dl, [drive]
+     mov [0x2000], dl
      jmp 0x0000:0x7E00
 
-; read sector into memory
-read_sector:
-     mov ch, 0
-     mov dh, 0
+disk_load:
+     pusha               ; push all reg 
+     push dx
 
-     mov ah, 0x02
-     int 0x13
-     jc .error
-     ret
-.error:
-     mov si, msg_load
+     mov ah, 0x02        ; read sector and put into memory
+     mov al, dh          ; sector count
+     mov dh, 0x02        ; read first available sector 0x02
+     mov ch, 0           ; low 8 bit of cylinder
+     mov cl, 0x2
+     mov dh, 0           ; head number
+     
+     stc                 ; set carry
+     int 0x13            ; read
+     jc disk_error       ; BIOS read fail
+
+     pop dx              
+     cmp al, dh          ; bios also set al to # sectors read 
+     jne sector_err
+     popa                ; clear stack
+     ret  
+
+disk_error:
+     mov si, msg_disk_err
      call puts
      xor ah, ah
-     int 13h
-     jmp read_sector
+     int 0x13
+     jmp stuck
+
+sector_err:
+     mov si, msg_sector_err
+     call puts
+     jmp stuck
 
 ; print string
+;    param - si (char *)
 puts:
      push si
      push ax
@@ -91,16 +90,14 @@ puts:
      pop si
      ret
      
+stuck:
+     jmp $
+     
+drive: db 0
 
-jmp $
+msg_disk_err: db "BIOS Disk Read Error", 0xA, 0xD, 0
+msg_sector_err: db "Sector Error", 0xA, 0xD, 0
 
-msg_load: 
-     db "Loading...", 0xA, 0xD, 0
-
-boot_disk:
-     db 0x00
-
-padd:
-     times 510-($-$$) db 0
-boot_flag:
-     db 0x55, 0xAA
+times 510-($-$$) db 0
+     db 0x55
+     db 0xAA

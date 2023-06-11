@@ -9,7 +9,7 @@ KERNEL_ELF=\
 	target/i686-kernel/release/ruslamos
 
 KERNEL_ASMS=$(shell find $(KERNEL) -name '*.asm')
-KERNEL_AOBJS=$(filter-out $(KERNEL)/kstart.elf, $(KERNEL_ASMS:.asm=.elf))
+KERNEL_AOBJS=$(filter-out $(KERNEL)/loader.elf, $(KERNEL_ASMS:.asm=.elf))
 
 .PHONY: dir all clean run
 
@@ -38,7 +38,7 @@ $(BIN)/bootsector.bin: $(BOOTLOADER)/bootsector.asm
 $(BIN)/stage2.bin: $(BOOTLOADER)/stage2.asm
 	$(AS) $< -f bin -o $@
 
-$(KERNEL_ELF): $(KERNEL)/kstart.elf $(KERNEL_AOBJS)
+$(KERNEL_ELF): $(KERNEL)/loader.elf $(KERNEL_AOBJS)
 	cargo xbuild --target=kernel/i686-kernel.json --release
 
 os.bin: $(BIN)/bootsector.bin $(BIN)/stage2.bin $(KERNEL_ELF)

@@ -7,7 +7,6 @@ use lazy_static::lazy_static;
 use crate::sys::shell::*;
 use crate::utils::font;
  
-
 #[derive(Copy, Clone)]
 #[repr(C, packed)]
 pub struct RSVbeInfoMode {
@@ -49,18 +48,13 @@ pub struct RSVbeInfoMode {
 	reserved1: [u8; 206]
 }
 
-
 const VBE_MODEINFO_ADDR: usize = 0xC000;
 
 const CHAR_WIDTH: usize = 8;
 const CHAR_HEIGHT: usize = 8;
 type Font = [[u8; 8]; 128]; 
 
-// set in kstart.asm
-#[no_mangle]
-pub unsafe extern "C" fn vesa_console_init() {
-	// let test_font = TEST_FONTADDR as *const u8;
-
+pub unsafe fn vesa_console_init() {
 	let vbe_mode_info = &*(VBE_MODEINFO_ADDR as *const RSVbeInfoMode);
 
 	let bpp = (vbe_mode_info.bitperpixel + 1) / 8;

@@ -1,8 +1,10 @@
 [bits 16]  
     org 0x7E00
-    
+
+    ; clear direction
     cld 
 
+    ; setup segment registers
     xor ax, ax
     mov ds, ax 
     mov es, ax 
@@ -90,6 +92,8 @@
     call puts
     jmp $          ; jmp forever
 
+; put string 
+;   param - si (char *)
 puts:
     push si
     push ax
@@ -157,13 +161,12 @@ a20wait2:
 
 ; switch cpu to 32bit pm
 pm:
-    cli
+    cli                     
     lgdt [GDT_DESC]
     mov eax, cr0
     or eax, 1
     mov cr0, eax
-    jmp 0x8:.after
-
+    jmp 0x8:.after              ; long jmp to after part
 
 [bits 32]
 .after:
@@ -184,20 +187,78 @@ pm:
     mov edi, 0xC000
     mov ecx, 64
     rep movsd
+
+
+;; Load Kernel use ATA PIO PORTS (should change)
+    ; zero out ax
+    xor ax, ax
+
+    ; destination
+    mov edi, 0x100000
+    ; sector to read
+    mov bl, 109
+
+    ;; CHS read
+    mov edx, 0x1F6           
+    mov al, [0x1000]              
+    and al, 0b00001111        
+    or al, 0b10100000        
+    out dx, al
+
+    mov edx, 0x1F2            
+    mov al, 110          
+    out dx, al
     
-    ;; Debug
-    mov edi, [mode_info_block.framebuffer]
-    mov eax, 0x000000FF
-    mov ecx, 1920*1080
-    rep stosd
+    mov edx, 0x1F3            
+    mov al, 6               
+    out dx, al
+    
+    mov edx, 0x1F4            
+    xor eax, eax          
+    out dx, al
+    
+    mov edx, 0x1F5            
+    xor eax, eax          
+    out dx, al
+    
+    mov edx, 0x1F7            
+    mov al, 0x20        ; Read with retry           
+    out dx, al
+      
+.kloop:
+    in al, dx
+    test al, 8
+    jz .kloop
+    mov ecx, 256
+    mov edx, 0x1F0
+    rep insw
 
-    ;; TODO: Load kernel with ATA PIO port
-    ; jump to kernel
-    ; jmp 0x8:0x10000   
+    mov edx, 0x3F6
+    in al, dx
+    in al, dx
+    in al, dx
+    in al, dx    
 
+    cmp bl, 0
+    je kernel_load
+
+    dec bl
+    mov dx, 0x1F7
+    jmp .kloop
+
+kernel_load:
+    jmp 0x8:0x100000
+
+stuck:
     jmp $
 
-%include "boot/ata/ata.asm"
+; VBE Variables
+width:      dw 1920
+height:     dw 1080
+bpp:        db 32
+offset:     dw 0
+_segment:   dw 0	
+mode:       dw 0
 
 GDT_START:
 GDT_NULL:   
@@ -221,69 +282,9 @@ GDT_DESC:
     dw (GDT_END - GDT_START) - 1
     dd GDT_START    
 
-; VBE Variables
-width: dw 1920
-height: dw 1080
-bpp: db 32
-offset: dw 0
-_segment: dw 0	
-mode: dw 0
-
 error_msg: db 0x0A,0x0D,"CANNOT FIND VIDEO(VBE) MODE :<",0
 
     ; end stage2 bootloader
     times 1024-($-$$) db 0
 
-vbe_info_block:
-    .vbe_signature: db 'VESA'
-	.vbe_version: dw 0200h
-	.oem_string_pointer: dd 0 
-	.capabilities: dd 0
-	.video_mode_pointer: dd 0
-	.total_memory: dw 0
-	.oem_software_rev: dw 0
-	.oem_vendor_name_pointer: dd 0
-	.oem_product_name_pointer: dd 0
-	.oem_product_revision_pointer: dd 0
-	.reserved: times 222 db 0
-	.oem_data: times 256 db 0
-
-mode_info_block:
-    .attributes: dw 0	
-	.window_a: db 0		
-	.window_b: db 0		
-	.granularity: dw 0	
-	.window_size: dw 0
-	.segment_a: dw 0
-	.segment_b: dw 0
-	.win_func_ptr: dd 0	
-	.pitch: dw 0			
-
-	.x_res: dw 0			 
-	.y_res: dw 0		
-	.w_char: db 0		
-	.y_char: db 0		
-	.planes: db 0
-	.bitperpixel: db 0			 
-	.banks: db 0			 
-	.memory_model: db 0
-	.bank_size: db 0		 
-	.image_pages: db 0
-	.reserved0: db 1
- 
-	.red_mask: db 0
-	.red_position: db 0
-	.green_mask: db 0
-	.green_position: db 0
-	.blue_mask: db 0
-	.blue_position: db 0
-	.reserved_mask: db 0
-	.reserved_position: db 0
-	.direct_color_attributes: db 0
- 
-	.framebuffer: dd 0		
-	.off_screen_mem_off: dd 0
-	.off_screen_mem_size: dw 0	
-	.reserved1: times 206 db 0
-
-    times 2048-($-$$) db 0
+    %include "boot/vbe_structure.asm"

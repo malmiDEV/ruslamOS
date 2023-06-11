@@ -17,8 +17,5 @@ kstart:
     cld
     rep stosb   
 
-    call vesa_console_init
-
-
-    jmp _kmain
+    call _kmain
     jmp $
