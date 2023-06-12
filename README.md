@@ -34,3 +34,4 @@ make sure your build system run on unix-like operating system
 - [ ] Some default applications paint, calculator, calender, clock, photo, music player etc...
 - [ ] Write a compiler for my custom language Rusty-C
 - [ ] Porting DOOM or Wolfenstein 3D for RuslamOS (wishlist)
+- [ ] Re-Write entire RuslamOS in Rusty-C (also wishlist)
