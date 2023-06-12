@@ -13,17 +13,21 @@ my hobby 32bit os written in rust
 * Make
 
 
-# build
-```
-make
-```
+## build && run
 
-# run
-```
-make run
-```
+* build:
 
-make sure your build system run on unix-like operating system
+  ```
+  make
+  ```
+
+* run:
+
+  ```
+  make run
+  ```
+
+* make sure your build system run on unix-like operating system
 
 
 ## TODO LIST
