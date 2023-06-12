@@ -5,6 +5,14 @@ my hobby 32bit os written in rust
 
 
 
+## TOOLS
+
+* Nasm
+* Qemu
+* Cargo (rust stuff)
+* Make
+
+
 # build
 ```
 make
