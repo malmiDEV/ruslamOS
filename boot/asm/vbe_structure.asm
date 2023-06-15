@@ -50,4 +50,4 @@ mode_info_block:
 	.off_screen_mem_size: dw 0	
 	.reserved1: times 206 db 0
 
-times 2048-($-$$) db 0
+; times 2048-($-$$) db 0

@@ -45,7 +45,6 @@ pub extern "C" fn _kmain() -> ! {
      }   
 }
 
-
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
      unsafe {

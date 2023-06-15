@@ -1,9 +1,6 @@
 use core::ptr;
 use core::fmt::Write;
 
-use spin::Mutex;
-use lazy_static::lazy_static;
-
 use crate::sys::shell::*;
 use crate::utils::font;
  

@@ -1,27 +1,21 @@
 ENTRY(_kmain)
 OUTPUT_FORMAT(binary)
 
-phys = 0x00100000;
+phys = 0x00010000;
 
 SECTIONS {
      . = phys;
 
-     .text : { 
-          _text = .;       
+     .text : {        
           *(.text)    
      }
-     .data : { 
-          _data = .;       
+     .data : {        
           *(.data)    
      }
-     .rodata : { 
-          _rodata = .;     
+     .rodata : {      
           *(.rodata)  
      }
-     .bss : {
-          _bss = .;        
+     .bss : {        
           *(.bss)
      }         
-
-     _end = .;
 }

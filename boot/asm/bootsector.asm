@@ -4,9 +4,6 @@ use16
      jmp 0000h:Boot
 
 Boot:
-     ; clear direction
-     cld
-
      ; store boot drive
      mov byte [drive], dl
      
@@ -18,22 +15,35 @@ Boot:
      mov gs, ax
      mov ss, ax
 
+     ; clear direction
+     cld
+
      ; set stack pointer
-     cli
-     mov sp, 0x7C00
-     mov bp, sp
-     sti
+     cli                 ; clear interrupt
+     mov sp, 0x7C00      ; stack grows at 0x7C00
+     mov bp, sp          
+     sti                 ; enable interrupt
 
      ;; load stage2   
      mov bx, 0x7E00
+     mov cl, 0x02        ; read first available sector 0x02
      mov dh, 0x02        ; read 2 sector 
      mov dl, [drive]     ; boot drive type
      call disk_load
 
-     ; switch to stage2 
-     mov dl, [drive]
-     mov [0x2000], dl
-     jmp 0x0000:0x7E00
+     ;; load kernel point  
+     push es             ; save es 
+     mov ax, 0x1000     
+     mov es, ax
+
+     mov bx, 0x0000      ; ES:BX = 0x10000
+     mov cl, 4           ; read at #
+     mov dh, 14          ; read sector 
+     mov dl, [drive]     ; boot drive type
+     call disk_load
+     pop es              ; restore es
+     
+     jmp load_stage2
 
 disk_load:
      pusha               ; push all reg 
@@ -42,7 +52,6 @@ disk_load:
      mov ah, 0x02        ; read sector and put into memory
      mov al, dh          ; sector count
      mov ch, 0           ; low 8 bit of cylinder
-     mov cl, 0x02        ; read first available sector 0x02
      mov dh, 0           ; head number
      
      stc                 ; set carry
@@ -58,7 +67,7 @@ disk_load:
 disk_error:
      mov si, msg_disk_err
      call puts
-     xor ah, ah
+     xor ax, ax          ; reset
      int 0x13
      jmp stuck
 
@@ -89,13 +98,33 @@ puts:
      pop si
      ret
      
+load_stage2:  
+     pop es
+
+     ; setup segment registers
+     mov ax, 0
+     mov ds, ax 
+     mov es, ax 
+     mov fs, ax 
+     mov gs, ax 
+     mov ss, ax 
+
+     mov ax, 0xFFF0
+     mov sp, ax
+
+     mov dl, [drive]     
+     mov [0x1000], dl    ; store bootdrive to addr 0x1000
+
+     ; switch to stage2 
+     jmp 0x0000:0x7E00
+
 stuck:
      jmp $
      
-drive: db 0
-
 msg_disk_err: db "BIOS Disk Read Error", 0xA, 0xD, 0
 msg_sector_err: db "Sector Error", 0xA, 0xD, 0
+
+drive: db 0
 
 times 510-($-$$) db 0
      db 0x55
