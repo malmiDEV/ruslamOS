@@ -3,7 +3,7 @@
 
 my hobby 32bit os written in rust
 
-
+**RUSLAMOS IS A DEAD PROJECT :(**
 
 ## TOOLS
 
