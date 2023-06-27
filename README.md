@@ -30,7 +30,7 @@ my hobby 32bit os written in rust
 
 ## TODO LIST
 
-- [xß] build fully working custom bootloader 
+- [x] build fully working custom bootloader 
 - [x] VGA
 - [x] Vesa Video mode
 - [ ] Kernel
