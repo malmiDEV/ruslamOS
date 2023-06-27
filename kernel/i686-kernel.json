@@ -9,17 +9,16 @@
      "os": "none",
      "executables": true,
      "relocation-model": "static",
-     "linker": "ld",
+     "linker": "i686-elf-ld",
      "linker-flavor": "ld",
      "disable-redzone": true,
      "features": "+soft-float,+sse",
 
      "pre-link-args": {
           "ld": [
-               "-m", "elf_i386",
                "-T", "kernel/kernel.ld",
-               "kernel/src/loader.elf",
-               "kernel/src/arch/i686/interrupt/isrs.elf"
+               "kernel/src/loader.o",
+               "kernel/src/arch/i686/interrupt/isrs.o"
           ]
      }
 }

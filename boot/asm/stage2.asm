@@ -10,62 +10,62 @@
     mov ax, 0x0003
     int 0x10
 
-;     ; set vesa mode
-;     mov ax, 0x4F00
-;     mov di, vbe_info_block
-;     int 10h
+    ; set vesa mode
+    mov ax, 0x4F00
+    mov di, vbe_info_block
+    int 10h
 
-;     ; if bios not support vbe
-;     cmp ax, 0x4F
-;     jne .error
+    ; if bios not support vbe
+    cmp ax, 0x4F
+    jne .error
 
-;     mov ax, word [vbe_info_block.video_mode_pointer]
-;     mov [offset], ax
-;     mov ax, word [vbe_info_block.video_mode_pointer+2]
-;     mov [_segment], ax
+    mov ax, word [vbe_info_block.video_mode_pointer]
+    mov [offset], ax
+    mov ax, word [vbe_info_block.video_mode_pointer+2]
+    mov [_segment], ax
 
-;     mov fs, ax
-;     mov si, [offset]
+    mov fs, ax
+    mov si, [offset]
 
-; .find_mode:
-;     mov dx, [fs:si]
-; 	add si, 2
-; 	mov [offset], si
-; 	mov [mode], dx
+.find_mode:
+    mov dx, [fs:si]
+	add si, 2
+	mov [offset], si
+	mov [mode], dx
     
-;     ; is end of vidmode array
-; 	cmp dx, word 0xFFFF			
-; 	je .error
+    ; is end of vidmode array
+	cmp dx, word 0xFFFF			
+	je .error
  
-; 	mov ax, 0x4F01				; get vbe mode info
-; 	mov cx, [mode]
-; 	mov di, mode_info_block
-; 	int 0x10
+	mov ax, 0x4F01				; get vbe mode info
+	mov cx, [mode]
+	mov di, mode_info_block
+	int 0x10
  
-; 	cmp ax, 0x4F
-; 	jne .error
+	cmp ax, 0x4F
+	jne .error
  
-; 	mov ax, [width]
-; 	cmp ax, [mode_info_block.x_res]
-; 	jne .next_mode
+	mov ax, [width]
+	cmp ax, [mode_info_block.x_res]
+	jne .next_mode
  
-; 	mov ax, [height]
-; 	cmp ax, [mode_info_block.y_res]
-; 	jne .next_mode
+	mov ax, [height]
+	cmp ax, [mode_info_block.y_res]
+	jne .next_mode
  
-; 	mov al, [bpp]
-; 	cmp al, [mode_info_block.bitperpixel]
-; 	jne .next_mode
+	mov al, [bpp]
+	cmp al, [mode_info_block.bitperpixel]
+	jne .next_mode
  
-; 	; Set the mode
-; 	mov ax, 0x4F02
-; 	mov bx, [mode]
-; 	or bx, 0x4000			
-; 	xor di, di 		
-; 	int 0x10
+	; Set the mode
+	mov ax, 0x4F02
+	mov bx, [mode]
+	or bx, 0x4000			
+	xor di, di 		
+	int 0x10
 
-; 	cmp ax, 0x4F
-; 	jne .error
+	cmp ax, 0x4F
+	jne .error
     
     ; enable a20 gate
     call enable_a20
@@ -73,11 +73,11 @@
     ; switch cpu to 32bit protected mode
 	jmp pm
 
-; .next_mode:
-; 	mov ax, [_segment]
-; 	mov fs, ax
-; 	mov si, [offset]
-; 	jmp .find_mode
+.next_mode:
+	mov ax, [_segment]
+	mov fs, ax
+	mov si, [offset]
+	jmp .find_mode
 
 .error:
     mov si, error_msg
@@ -174,21 +174,21 @@ pm:
     mov esp, 0x90000
     mov ebp, esp
 
-    ; ; store vbe mode info block
-    ; mov esi, mode_info_block
-    ; mov edi, 0xC000
-    ; mov ecx, 64
-    ; rep movsd
+    ; store vbe mode info block
+    mov esi, mode_info_block
+    mov edi, 0xC000
+    mov ecx, 64
+    rep movsd
 
 kernel_load:
-    jmp 0x8:0x10000
+    jmp 0x8:0x2000
 
 stuck:
     jmp $
 
 ; VBE Variables
-width:      dw 1920
-height:     dw 1080
+width:      dw 1280
+height:     dw 720
 bpp:        db 32
 offset:     dw 0
 _segment:   dw 0	
@@ -214,11 +214,11 @@ GDT_DATA:
 GDT_END:
 GDT_DESC:   
     dw (GDT_END - GDT_START) - 1
-    dd GDT_START    
+    dd GDT_START 
 
 error_msg: db 0x0A,0x0D,"CANNOT FIND VIDEO MODE :<",0
 
     ; end stage2 bootloader
     times 1024-($-$$) db 0
 
-    ; %include "asm/vbe_structure.asm"
+    %include "asm/vbe_structure.asm"

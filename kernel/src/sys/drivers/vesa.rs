@@ -7,7 +7,7 @@ use crate::utils::font;
 #[derive(Copy, Clone)]
 #[repr(C, packed)]
 pub struct RSVbeInfoMode {
-    attributes: u16,	
+	attributes: u16,	
 	window_a: u8,			
 	window_b: u8,		
 	granularity: u16,	
@@ -59,7 +59,7 @@ pub unsafe fn vesa_console_init() {
 	let mut vesa_gfx = VesaGraphics {
 		vram: (*(VBE_MODEINFO_ADDR as *const RSVbeInfoMode)).framebuffer as *mut u8,
 		font: font::VGA_PC_FONT,
-        width: vbe_mode_info.x_res as usize,
+		width: vbe_mode_info.x_res as usize,
 		height: vbe_mode_info.y_res as usize,
 		pitch: vbe_mode_info.pitch as usize,
 		bpp: bpp as usize,
@@ -79,7 +79,7 @@ pub struct Point {
 impl Point {
 	pub fn new(x: isize, y: isize) -> Self {
 		Self { x, y }
-    }
+	}
 }
 
 // 2d graphics && font renderer
@@ -90,8 +90,8 @@ pub struct VesaGraphics {
 	height: usize,
 	pitch: usize,
 	bpp: usize,
-    col: usize,
-    row: usize,
+	col: usize,
+	row: usize,
 }
 
 const GRUVBOX: u32 = 0xFF3C3836;
@@ -103,13 +103,13 @@ impl VesaGraphics {
 	}
 
 	pub fn scroll(&mut self, line: usize) {
-		// TODO
+		
 	}
 
 	pub fn write_char(&mut self, c: u8) {
 		match c {
 			b'\n' => {
-			    self.row += 1;
+				self.row += 1;
 				self.col = 0;
 			}
 			b'\r' => {
@@ -199,7 +199,6 @@ impl Write for VesaGraphics {
 		for i in s.bytes() {
 			self.write_char(i);
 		}
-
 		Ok(())
 	}
 }

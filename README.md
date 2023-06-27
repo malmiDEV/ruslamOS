@@ -3,8 +3,6 @@
 
 my hobby 32bit os written in rust
 
-**RUSLAMOS IS A DEAD PROJECT :(**
-
 ## TOOLS
 
 * Nasm
@@ -32,7 +30,7 @@ my hobby 32bit os written in rust
 
 ## TODO LIST
 
-- [ ] build fully working custom bootloader 
+- [xß] build fully working custom bootloader 
 - [x] VGA
 - [x] Vesa Video mode
 - [ ] Kernel

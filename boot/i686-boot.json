@@ -9,14 +9,13 @@
     "os": "none",
     "executables": true,
     "relocation-model": "static",
-    "linker": "ld",
+    "linker": "i686-elf-ld",
     "linker-flavor": "ld",
     "disable-redzone": true,
     "features": "+soft-float,+sse",
 
     "pre-link-args": {
         "ld": [
-            "-m", "elf_i386",
             "-T", "boot.ld",
             "asm/loader.o"
         ]

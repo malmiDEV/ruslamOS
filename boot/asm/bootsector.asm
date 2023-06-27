@@ -31,18 +31,13 @@ Boot:
      mov dl, [drive]     ; boot drive type
      call disk_load
 
-     ;; load kernel point  
-     push es             ; save es 
-     mov ax, 0x1000     
-     mov es, ax
-
-     mov bx, 0x0000      ; ES:BX = 0x10000
-     mov cl, 4           ; read at #
+     ;; load kernel point 
+     mov bx, 0x2000      ; ES:BX = 0x10000
+     mov cl, 6           ; read at #
      mov dh, 14          ; read sector 
      mov dl, [drive]     ; boot drive type
      call disk_load
-     pop es              ; restore es
-     
+
      jmp load_stage2
 
 disk_load:
@@ -99,8 +94,6 @@ puts:
      ret
      
 load_stage2:  
-     pop es
-
      ; setup segment registers
      mov ax, 0
      mov ds, ax 

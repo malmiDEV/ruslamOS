@@ -30,18 +30,18 @@ clean:
 	@rm -rf */*/*/*/*/*/*.o
 	@rm -rf */*/*/*/*/*/*/*.o
 
-.PHONY: $(BIN)/bootlod_image.bin
-$(BIN)/bootlod_image.bin: 
+.PHONY: $(BIN)/bootloader.bin
+$(BIN)/bootloader.bin: 
 	@echo " -> START COMPILE BOOTLOADER"
-	@$(MAKE) -C boot/
+	@cd boot && ./build.sh && cd ../
 	@echo " -> BOOTLOADER COMPILED"
 
 $(KERNEL_ELF): $(KERNEL)/loader.o $(KERNEL_AOBJS) 
 	@cargo xbuild --target=kernel/i686-kernel.json --release
 	@echo " -> KERNEL IMAGE COMPILED"
 
-# $(BIN)/bootlod_image.bin
-os.bin: $(BIN)/bootlod_image.bin $(BIN)/testkernel.bin
+# $(BIN)/bootloader.bin
+os.bin: $(BIN)/bootloader.bin $(KERNEL_ELF) #$(BIN)/testkernel.bin
 	@echo " -> START GENERATE IMAGE"
 	@cat $^ > $(BIN)/temp.bin
 	@dd if=/dev/zero of=$@ bs=512 count=2880
@@ -49,4 +49,4 @@ os.bin: $(BIN)/bootlod_image.bin $(BIN)/testkernel.bin
 	@echo " -> OS.BIN GENERATED"
 
 %.o: %.asm
-	@$(AS) $< -f o -o $@
+	@$(AS) $< -f elf -o $@
