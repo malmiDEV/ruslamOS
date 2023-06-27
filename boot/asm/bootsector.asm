@@ -32,7 +32,7 @@ Boot:
      call disk_load
 
      ;; load kernel point 
-     mov bx, 0x2000      ; ES:BX = 0x10000
+     mov bx, 0x2000      ; ES:BX = 0x2000ß
      mov cl, 6           ; read at #
      mov dh, 14          ; read sector 
      mov dl, [drive]     ; boot drive type
