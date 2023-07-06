@@ -103,7 +103,7 @@ impl VesaGraphics {
 	}
 
 	pub fn scroll(&mut self, line: usize) {
-		
+		// TODO
 	}
 
 	pub fn write_char(&mut self, c: u8) {

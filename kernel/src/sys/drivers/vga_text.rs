@@ -40,7 +40,7 @@ const SCH: usize = 25;
 const HEXCHARS: &[u8; 16] = b"0123456789abcdef";
 
 pub struct Writer {
-     cursor_x: usize,
+     cursor_x:  usize,
      cursor_y: usize
 } 
 

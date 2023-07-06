@@ -2,18 +2,10 @@ use core::ptr;
 
 use crate::io;
 
-pub struct Ata {
-    disk_type: u32
-}
+pub struct Ata;
 
 impl Ata {
-    pub fn new(disk_type: u32) -> Self {
-        Self {
-            disk_type: disk_type
-        }
-    }
-
-    pub unsafe fn read(&self, lba: u32, sector: u8, address: usize) {
+    pub unsafe fn read(lba: u32, sector: u8, address: usize) {
         io::outb(0x1F6, (0xE0 | ((lba >> 24) & 0xFF)) as u8);
         io::outb(0x1F2, sector);
         io::outb(0x1F3, lba as u8);
@@ -30,9 +22,8 @@ impl Ata {
             for i in 0..256 {
                 *address_ptr.offset(ctr) = io::inw(0x1F0);
                 ctr += 1;
-                // print!("{:X} ", *address_ptr.offset(i));
             }
-            
+        
             for i in 0..4 {
                 io::inb(0x3F6);
             }   

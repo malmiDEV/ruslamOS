@@ -21,22 +21,24 @@ fn test(regs: &mut crate::arch::interrupt::Registers) {
 pub extern "C" fn _kmain() -> ! {
      // init kernel stuff 
      unsafe {
+          use crate::sys::drivers;
+          drivers::vesa::vesa_console_init();
+
           arch::cpu_interrupt_set();
-          
+
           use crate::arch::pic;
           pic::remap();
-          
+
           interrupt::enable_interrupt();
-          
-          use crate::sys::drivers;
-          drivers::vesa::vesa_console_init();     
+
+          // asm!("int 14");
      }
      
      println!("RuslamOS\n\n");
      
-     unsafe {
-          interrupt::interrupts::regs_handle(0, test);
-     }
+     // unsafe {
+     //      interrupt::interrupts::regs_handle(0, test);
+     // }
 
      loop {
           unsafe {

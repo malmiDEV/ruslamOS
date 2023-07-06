@@ -32,11 +32,15 @@ Boot:
      call disk_load
 
      ;; load kernel point 
-     mov bx, 0x2000      ; ES:BX = 0x2000ß
+     push es
+     mov ax, 0x5000
+     mov es, ax
+     mov bx, 0x0000      ; ES:BX = 0x50000
      mov cl, 6           ; read at #
      mov dh, 14          ; read sector 
      mov dl, [drive]     ; boot drive type
      call disk_load
+     pop es
 
      jmp load_stage2
 

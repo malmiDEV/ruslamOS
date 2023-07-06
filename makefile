@@ -13,9 +13,9 @@ KERNEL_AOBJS=$(filter-out $(KERNEL)/loader.o, $(KERNEL_ASMS:.asm=.o))
 
 .PHONY: dir all clean run
 
-all: os.bin clean
+all: os.bin clean run
 
-run: 
+run:
 	qemu-system-i386 -m 128M -drive format=raw,file=os.bin,if=ide,index=0,media=disk
 
 dir:

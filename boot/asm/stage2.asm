@@ -3,10 +3,8 @@
 
     ; clear direction
     cld 
-    
-    cli
-    sti
 
+    ; clear the screen
     mov ax, 0x0003
     int 0x10
 
@@ -181,7 +179,7 @@ pm:
     rep movsd
 
 kernel_load:
-    jmp 0x8:0x2000
+    jmp 0x8:0x50000
 
 stuck:
     jmp $

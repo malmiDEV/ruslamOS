@@ -124,6 +124,7 @@ pub fn init() {
     HANDLERS.lock()[11] = Handlers::Error(interrupts::segment_not_present);
     HANDLERS.lock()[12] = Handlers::Error(interrupts::stack_segment);
     HANDLERS.lock()[13] = Handlers::Error(interrupts::protection);
+    HANDLERS.lock()[14] = Handlers::Error(interrupts::page_fault);
 
     HANDLERS.lock()[16] = Handlers::Error(interrupts::fpu_fault);
     HANDLERS.lock()[17] = Handlers::Error(interrupts::alignment_check);

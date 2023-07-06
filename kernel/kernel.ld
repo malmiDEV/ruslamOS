@@ -1,7 +1,7 @@
 ENTRY(_kmain)
 OUTPUT_FORMAT(binary)
 
-phys = 0x00010000;
+phys = 0x00100000;
 
 SECTIONS {
      . = phys;

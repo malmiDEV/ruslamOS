@@ -39,9 +39,16 @@ exceptions! {
     fn security()             => "Security exception",
 }
 
-
 pub fn breakpoint(regs: &mut Registers) {
     (*regs).eip -= 1;
+}
+
+use core::arch::asm;
+pub fn page_fault(regs: &mut Registers) {
+    println!("PAGE FAULT");
+    unsafe {
+        asm!("cli;hlt");
+    }
 }
 
 // ... pagefaule and more 
