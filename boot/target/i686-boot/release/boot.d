@@ -1,1 +1,0 @@
-/Users/youllee/Desktop/ruslamOS/boot/target/i686-boot/release/boot: /Users/youllee/Desktop/ruslamOS/boot/src/ata.rs /Users/youllee/Desktop/ruslamOS/boot/src/io.rs /Users/youllee/Desktop/ruslamOS/boot/src/main.rs /Users/youllee/Desktop/ruslamOS/boot/src/vga_text.rs /Users/youllee/Desktop/ruslamOS/boot/src/virt_mem_manager.rs
