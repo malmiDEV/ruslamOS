@@ -24,7 +24,7 @@ my hobby 32bit os written in rust
   ```
   make run
   ```
-
+ 
 * make sure your build system run on unix-like operating system
 
 
@@ -33,7 +33,7 @@ my hobby 32bit os written in rust
 - [x] build fully working custom bootloader 
 - [x] VGA
 - [x] Vesa Video mode
-- [ ] Kernel
+- [x] Kernel
 - [ ] Memory managment Paing and heap ...
 - [ ] Sound Keyboard etc.
 - [ ] ACPI driver 
