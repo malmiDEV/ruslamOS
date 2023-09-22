@@ -64,7 +64,13 @@
 
 	cmp ax, 0x4F
 	jne .error
-    
+
+    ; load kernel point
+    mov ah, 0x42
+    mov dl, 0x80
+    mov si, disk_dap
+    int 0x13
+
     ; enable a20 gate
     call enable_a20
 
@@ -178,15 +184,26 @@ pm:
     mov ecx, 64
     rep movsd
 
-kernel_load:
+kernel_load:    
     jmp 0x8:0x50000
 
 stuck:
     jmp $
 
+; kernel dap
+disk_dap:
+   db 0x10
+   db 0
+   db 1
+   db 0
+   dw 0x0000
+   dw 0x5000 
+   dd 5
+   dd 0
+
 ; VBE Variables
-width:      dw 1280
-height:     dw 720
+width:      dw 1024
+height:     dw 768
 bpp:        db 32
 offset:     dw 0
 _segment:   dw 0	

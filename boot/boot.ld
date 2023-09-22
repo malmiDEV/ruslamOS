@@ -1,7 +1,7 @@
 ENTRY(kernel_load)
 OUTPUT_FORMAT(binary)
 
-phys = 0x00050000;
+phys = 0x50000;
 
 SECTIONS {
     . = phys;

@@ -8,25 +8,26 @@ mod vga_text;
 
 mod ata;
 mod io;
-mod virt_mem_manager;
+mod virt;
+mod phys;
 
 use crate::ata::Ata;
-use crate::virt_mem_manager::VirtualMem;
-
-
-const KERNEL_ADDRESS: usize = 0x100000;
+use crate::virt::VirtualMem;
+use crate::phys::*;
+use crate::vga_text::Vga;
 
 #[no_mangle]
 pub unsafe extern "C" fn kernel_load(drive: u32) -> ! {
-    let mut ata = Ata::read(7, 100, KERNEL_ADDRESS);
-
-    let mut virtual_mem = VirtualMem::new();
+    // let mut virt_mem = VirtualMem::new();
+    // virt_mem.init_virtual_memory();
     
-    virtual_mem.init_virtual_memory();
-    virtual_mem.paging_enable();
+    // let mut phys_addr: u32 = 0;
+    // let kernel_page = phys::alloc(1000, 1, &mut phys_addr);
+    // println!("{:#X}", kernel_page);
+    Ata::read(7, 110, 0x100000);
     
-    let kernel: fn() = core::mem::transmute(KERNEL_ADDRESS);
-    kernel();
+    let kernel: fn() = core::mem::transmute(0x100000);
+    kernel(); 
 
     loop {}
 }   

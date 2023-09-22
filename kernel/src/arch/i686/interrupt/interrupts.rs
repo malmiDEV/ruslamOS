@@ -90,7 +90,7 @@ pub unsafe extern "C" fn general_interrupt_handler(regs: &mut Registers) {
         Handlers::Error(handler) => {
             handler(regs);
         },
-        Handlers::None => println!("unhandled interrupt: {:#X}", regs.interrupt)
+        Handlers::None => todo!()
     }
     eoi((regs.interrupt + 0x20) as u8);
 }

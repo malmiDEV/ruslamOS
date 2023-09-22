@@ -48,6 +48,13 @@ pub struct Vga {
 } 
 
 impl Vga {
+    pub fn new() -> Self {
+        Self {
+            cursor_x: 0,
+            cursor_y: 0
+        }
+    }
+
     fn vga_cursor(&mut self, x: usize, y: usize) {
         let pos: usize = y * SCW + x;
 

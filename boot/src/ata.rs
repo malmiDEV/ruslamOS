@@ -5,7 +5,7 @@ use crate::io;
 pub struct Ata;
 
 impl Ata {
-    pub unsafe fn read(lba: u32, sector: u8, address: usize) {
+    pub unsafe fn read(lba: u32, sector: u8, address: u32) {
         io::outb(0x1F6, (0xE0 | ((lba >> 24) & 0xFF)) as u8);
         io::outb(0x1F2, sector);
         io::outb(0x1F3, lba as u8);

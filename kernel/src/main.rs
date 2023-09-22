@@ -9,9 +9,9 @@ pub mod utils;
 
 use core::panic::PanicInfo;
 use core::arch::asm;
-
-use utils::io::*;
 use arch::i686::interrupt; 
+
+use utils::*;
 
 fn test(regs: &mut crate::arch::interrupt::Registers) {
      print!(".");
@@ -23,6 +23,10 @@ pub extern "C" fn _kmain() -> ! {
      unsafe {
           use crate::sys::drivers;
           drivers::vesa::vesa_console_init();
+          
+          // use crate::arch::mem::virt::VirtualMem;
+          // let mut virt_mem = VirtualMem::new();
+          // virt_mem.init_virtual_memory();
 
           arch::cpu_interrupt_set();
 
@@ -31,11 +35,17 @@ pub extern "C" fn _kmain() -> ! {
 
           interrupt::enable_interrupt();
 
+          // clear ps2 status register
+          while (io::inb(0x64) & 1) != 0 { 
+               io::inb(0x60);
+          }
+
+          println!("RuslamOS\n\n");
+
           // asm!("int 14");
      }
      
-     println!("RuslamOS\n\n");
-     
+
      // unsafe {
      //      interrupt::interrupts::regs_handle(0, test);
      // }

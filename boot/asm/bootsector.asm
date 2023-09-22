@@ -1,12 +1,12 @@
 use16
      org 0x7C00
 
-     jmp 0000h:Boot
+     jmp 0000h:_bootsector
 
-Boot:
+_bootsector:
      ; store boot drive
-     mov byte [drive], dl
-     
+     mov byte [boot_disk], dl
+
      ; set bootsector segment
      xor ax, ax
      mov ds, ax 
@@ -19,68 +19,31 @@ Boot:
      cld
 
      ; set stack pointer
-     cli                 ; clear interrupt
-     mov sp, 0x7C00      ; stack grows at 0x7C00
-     mov bp, sp          
-     sti                 ; enable interrupt
+     cli
+     mov sp, 0x7C00
+     mov bp, sp
+     sti
 
-     ;; load stage2   
-     mov bx, 0x7E00
-     mov cl, 0x02        ; read first available sector 0x02
-     mov dh, 0x02        ; read 2 sector 
-     mov dl, [drive]     ; boot drive type
-     call disk_load
+     ; claer screen (80*25) VGA text
+     mov ax, 0x0003
+     int 10h
 
-     ;; load kernel point 
-     push es
-     mov ax, 0x5000
-     mov es, ax
-     mov bx, 0x0000      ; ES:BX = 0x50000
-     mov cl, 6           ; read at #
-     mov dh, 14          ; read sector 
-     mov dl, [drive]     ; boot drive type
-     call disk_load
-     pop es
-
-     jmp load_stage2
-
-disk_load:
-     pusha               ; push all reg 
-     push dx
-
-     mov ah, 0x02        ; read sector and put into memory
-     mov al, dh          ; sector count
-     mov ch, 0           ; low 8 bit of cylinder
-     mov dh, 0           ; head number
-     
-     stc                 ; set carry
-     int 0x13            ; read
-     jc disk_error       ; BIOS read fail
-
-     pop dx              
-     cmp al, dh          ; bios also set al to # sectors read 
-     jne sector_err
-     popa                ; clear stack
-     ret  
-
-disk_error:
-     mov si, msg_disk_err
+     mov si, msg_load
      call puts
-     xor ax, ax          ; reset
+
+     ; load stage2
+     mov ah, 0x42
+     mov dl, byte [boot_disk]
+     mov si, disk_dap
      int 0x13
-     jmp stuck
 
-sector_err:
-     mov si, msg_sector_err
-     call puts
-     jmp stuck
+done_loading:
+     ; save drive type to stack
+     mov dl, byte [boot_disk]
+     mov byte [0x2000], dl 
+     jmp load_bootloader
 
-; print string
-;    param - si (char *)
 puts:
-     push si
-     push ax
-     push bx
      mov ah, 0x0E
      mov bh, 0
      mov bl, 0x07
@@ -92,37 +55,43 @@ puts:
      add si, 1
      jmp .loop
 .return:     
-     pop ax
-     pop bx
-     pop si
      ret
-     
-load_stage2:  
-     ; setup segment registers
+
+load_bootloader:
      mov ax, 0
      mov ds, ax 
      mov es, ax 
      mov fs, ax 
      mov gs, ax 
      mov ss, ax 
-
-     mov ax, 0xFFF0
-     mov sp, ax
-
-     mov dl, [drive]     
-     mov [0x1000], dl    ; store bootdrive to addr 0x1000
-
-     ; switch to stage2 
-     jmp 0x0000:0x7E00
-
-stuck:
-     jmp $
      
-msg_disk_err: db "BIOS Disk Read Error", 0xA, 0xD, 0
-msg_sector_err: db "Sector Error", 0xA, 0xD, 0
+     mov sp, 0xFFF0
+     mov bp, sp
 
-drive: db 0
+     ; jump to stage2 bootloader
+     jmp 0x00:0x7E00
 
-times 510-($-$$) db 0
-     db 0x55
-     db 0xAA
+.loop:
+     jmp .loop
+
+msg_load: 
+     db "Loading...", 0xA, 0xD, 0
+msg_err_load:
+     db "Error Load Sector From Disk", 0x0A, 0x0D, 0
+
+boot_disk:
+     db 0x80
+disk_dap:
+   db 0x10
+   db 0
+   db 1
+   db 0
+   dw 0x7E00
+   dw 0x0000
+   dd 1
+   dd 0
+
+padd:
+     times 510-($-$$) db 0
+boot_flag:
+     db 0x55, 0xAA

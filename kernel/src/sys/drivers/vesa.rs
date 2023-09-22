@@ -48,8 +48,8 @@ pub struct RSVbeInfoMode {
 const VBE_MODEINFO_ADDR: usize = 0xC000;
 
 const CHAR_WIDTH: usize = 8;
-const CHAR_HEIGHT: usize = 8;
-type Font = [[u8; 8]; 128]; 
+const CHAR_HEIGHT: usize = 16;
+type Font = [[u8; CHAR_HEIGHT]; 128]; 
 
 pub unsafe fn vesa_console_init() {
 	let vbe_mode_info = &*(VBE_MODEINFO_ADDR as *const RSVbeInfoMode);
@@ -58,7 +58,7 @@ pub unsafe fn vesa_console_init() {
 	
 	let mut vesa_gfx = VesaGraphics {
 		vram: (*(VBE_MODEINFO_ADDR as *const RSVbeInfoMode)).framebuffer as *mut u8,
-		font: font::VGA_PC_FONT,
+		font: font::RUSLAM_FONT,
 		width: vbe_mode_info.x_res as usize,
 		height: vbe_mode_info.y_res as usize,
 		pitch: vbe_mode_info.pitch as usize,
@@ -94,8 +94,8 @@ pub struct VesaGraphics {
 	row: usize,
 }
 
-const GRUVBOX: u32 = 0xFF3C3836;
-const CHARCOL: u32 = 0xFFFBF1C7;
+const BGCOL: u32 = 0xDDC7A1;
+const CHARCOL: u32 = 0x252423;
 
 impl VesaGraphics {
 	pub fn move_cursor(&mut self, x_pos: usize, y_pos: usize) {
@@ -117,9 +117,9 @@ impl VesaGraphics {
 			}
 			_ => {
 				let glyph = self.font[c as usize];
-				for y in 0..8 {
-					for x in 0..8 {	
-						if glyph[y] & (1 << x) != 0 {
+				for y in 0..CHAR_HEIGHT {
+					for x in 0..CHAR_WIDTH {	
+						if glyph[y] & (0x80 >> x) != 0 {
 							self.draw_pixel(self.col * CHAR_WIDTH + x, self.row * CHAR_HEIGHT + y as usize, CHARCOL);
 						}
 					}
@@ -144,9 +144,9 @@ impl VesaGraphics {
 				let pointer = self.vram.add(j * self.pitch);
 			
 				for i in 0..self.width {
-					ptr::write(pointer.add(i * self.bpp + 0), (GRUVBOX & 0xFF) as u8);
-					ptr::write(pointer.add(i * self.bpp + 1), ((GRUVBOX >> 8) & 0xFF) as u8);
-					ptr::write(pointer.add(i * self.bpp + 2), ((GRUVBOX >> 16) & 0xFF) as u8);
+					ptr::write(pointer.add(i * self.bpp + 0), (BGCOL & 0xFF) as u8);
+					ptr::write(pointer.add(i * self.bpp + 1), ((BGCOL >> 8) & 0xFF) as u8);
+					ptr::write(pointer.add(i * self.bpp + 2), ((BGCOL >> 16) & 0xFF) as u8);
 				}
 			}
 		}
