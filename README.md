@@ -25,7 +25,7 @@ my hobby 32bit os written in rust
   make run
   ```
  
-* make sure your build system run on unix-like operating system
+* make sure your build system running on unix-like operating system
 
 
 ## TODO LIST
