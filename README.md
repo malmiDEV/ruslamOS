@@ -30,6 +30,8 @@ my hobby 32bit os written in rust
 
 ## TODO LIST
 
+* it's dead, actually
+
 - [x] build fully working custom bootloader 
 - [x] VGA
 - [x] Vesa Video mode
